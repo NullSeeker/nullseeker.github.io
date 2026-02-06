@@ -1,17 +1,275 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Простой сайт</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DieoDex — AI Agent Chat</title>
+  <meta name="description" content="DieoDex — красивый чат-интерфейс под AI-агента. Заглушки ответов, готово для подключения OpenRouter." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="card">
-    <h1>Сайт работает 🚀</h1>
-    <p>Загружен на Cloudflare Pages</p>
-    <button onclick="hello()">Нажми меня</button>
+  <div class="bg">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="orb o3"></div>
+    <div class="grain"></div>
   </div>
 
-  <script src="script.js"></script>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M12 20c10-14 30-14 40 0" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+            <path d="M12 44c10 14 30 14 40 0" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+            <path d="M20 32h24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="20" cy="32" r="3" fill="currentColor"/>
+            <circle cx="44" cy="32" r="3" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">DieoDex</div>
+          <div class="brand-sub">AI Agent Console</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary newchat" id="newChatBtn">
+        <span class="btn-ic" aria-hidden="true">＋</span>
+        Новый чат
+      </button>
+
+      <div class="panel">
+        <div class="panel-title">Сессии</div>
+        <div class="sessions" id="sessionList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Режим агента</div>
+        <div class="agent-card">
+          <div class="agent-row">
+            <div class="agent-badge" id="agentBadge">CO</div>
+            <div class="agent-meta">
+              <div class="agent-name" id="agentName">Codex-like</div>
+              <div class="agent-desc" id="agentDesc">Планирует шаги и отвечает кратко</div>
+            </div>
+          </div>
+          <div class="agent-controls">
+            <button class="chip" data-agent="codex" aria-pressed="true">Codex-like</button>
+            <button class="chip" data-agent="helper" aria-pressed="false">Helper</button>
+            <button class="chip" data-agent="dev" aria-pressed="false">Dev</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn btn-ghost" id="settingsBtn" title="Настройки">
+          <span class="btn-ic" aria-hidden="true">⚙</span>
+          Настройки
+        </button>
+        <button class="btn btn-ghost" id="themeBtn" title="Переключить тему">
+          <span class="btn-ic" aria-hidden="true">☾</span>
+          Тема
+        </button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="iconbtn mobile-only" id="menuBtn" title="Меню" aria-label="Меню">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
+        <div class="topbar-center">
+          <div class="title">
+            <span class="pulse" aria-hidden="true"></span>
+            <span id="chatTitle">DieoDex Chat</span>
+            <span class="beta">BETA</span>
+          </div>
+          <div class="subtitle" id="chatSubtitle">Заглушки ответов. Подключишь OpenRouter — будет настоящий агент.</div>
+        </div>
+
+        <div class="topbar-actions">
+          <button class="iconbtn" id="exportBtn" title="Экспорт чата" aria-label="Экспорт чата">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M7 7h10M7 11h10M7 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+          <button class="iconbtn" id="clearBtn" title="Очистить чат" aria-label="Очистить чат">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M9 3h6M4 6h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 6l1 15h8l1-15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="chat" id="chat">
+        <div class="chat-inner" id="chatInner">
+          <div class="hero" id="hero">
+            <div class="hero-badge">DieoDex</div>
+            <h1>Чат с агентом, который выглядит как продукт</h1>
+            <p>Это красивая заготовка: анимации, сессии, экспорт, темы, стриминг текста. Сейчас ответы — заглушки. Потом подключишь OpenRouter.</p>
+            <div class="hero-actions">
+              <button class="btn btn-primary" id="tryDemoBtn">Показать демо</button>
+              <button class="btn btn-ghost" id="openApiHintBtn">Как подключить OpenRouter?</button>
+            </div>
+            <div class="hero-cards">
+              <div class="mini-card">
+                <div class="mini-title">✨ Стриминг ответа</div>
+                <div class="mini-text">Текст появляется по символам + индикатор набора</div>
+              </div>
+              <div class="mini-card">
+                <div class="mini-title">🧠 Агент-режимы</div>
+                <div class="mini-text">Codex-like / Helper / Dev</div>
+              </div>
+              <div class="mini-card">
+                <div class="mini-title">🗂 Сессии</div>
+                <div class="mini-text">История чатов в LocalStorage</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="composer">
+        <div class="composer-inner">
+          <div class="model-pill" id="modelPill" title="Пока заглушка">Model: placeholder</div>
+
+          <div class="input-wrap">
+            <textarea id="prompt" rows="1" placeholder="Напиши сообщение… (Enter = отправить, Shift+Enter = новая строка)"></textarea>
+            <div class="input-actions">
+              <button class="iconbtn" id="attachBtn" title="Вложение (заглушка)" aria-label="Вложение">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 12.5l-7.8 7.8a5 5 0 0 1-7.1-7.1L14.5 4.8a3.5 3.5 0 0 1 5 5L10 19.3a2 2 0 1 1-2.8-2.8l8.5-8.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="send" id="sendBtn" title="Отправить" aria-label="Отправить">
+                <span class="send-glow" aria-hidden="true"></span>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M22 2l-7 20-4-9-9-4 20-7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="hint">
+            <span class="dot"></span>
+            <span>Подсказка: открой настройки и вставь OpenRouter endpoint/модель позже (ключ не сохраняется).</span>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Настройки">
+      <div class="modal-head">
+        <div class="modal-title">Настройки DieoDex</div>
+        <button class="iconbtn" data-close="1" aria-label="Закрыть">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="grid">
+          <div class="field">
+            <label>Endpoint (пока не используется)</label>
+            <input id="endpointInput" placeholder="https://openrouter.ai/api/v1/chat/completions" />
+            <div class="field-help">Оставь пустым — всё равно будут заглушки.</div>
+          </div>
+
+          <div class="field">
+            <label>Модель (пока не используется)</label>
+            <input id="modelInput" placeholder="openai/gpt-4o-mini или meta-llama/..." />
+            <div class="field-help">Потом используешь при запросе в OpenRouter.</div>
+          </div>
+
+          <div class="field">
+            <label>API ключ (не сохраняем)</label>
+            <input id="apiKeyInput" type="password" placeholder="sk-or-..." />
+            <div class="field-help warn">⚠️ Сейчас ключ не хранится. Не вставляй, если не надо.</div>
+          </div>
+
+          <div class="field">
+            <label>Темп “печатания”</label>
+            <input id="typingSpeed" type="range" min="8" max="40" value="18" />
+            <div class="field-help">Меньше = быстрее.</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row">
+          <div class="row-left">
+            <div class="row-title">Хранить историю</div>
+            <div class="row-sub">LocalStorage (на этом устройстве). Можно выключить.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="persistToggle" checked />
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="row">
+          <div class="row-left">
+            <div class="row-title">Звуки</div>
+            <div class="row-sub">Лёгкие клики/уведомления (очень тихо).</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="soundToggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="1">Закрыть</button>
+        <button class="btn btn-primary" id="saveSettingsBtn">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Hint Modal -->
+  <div class="modal" id="apiHintModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close="1"></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-label="Как подключить OpenRouter">
+      <div class="modal-head">
+        <div class="modal-title">Как подключить OpenRouter позже</div>
+        <button class="iconbtn" data-close="1" aria-label="Закрыть">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ol class="steps">
+          <li><b>Не вставляй ключ в фронт</b>, если сайт публичный. Правильно: проксировать запросы через backend (Cloudflare Worker).</li>
+          <li>В Worker храни ключ как <b>Secret</b> и делай запрос на OpenRouter оттуда.</li>
+          <li>Фронт (этот сайт) делает <code>fetch()</code> на твой Worker endpoint и получает ответ.</li>
+          <li>Хочешь — я дам готовый Worker-код под OpenRouter + CORS.</li>
+        </ol>
+        <div class="codebox">
+          <div class="codebox-title">Схема</div>
+          <pre><code>Browser (Pages)  →  Worker (secret key)  →  OpenRouter</code></pre>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-primary" data-close="1">Понял</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
